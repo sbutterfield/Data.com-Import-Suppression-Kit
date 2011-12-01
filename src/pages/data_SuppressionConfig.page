@@ -1,0 +1,177 @@
+<apex:page controller="data_SuppressionConfigController" title="Data.com Prospecting Suppression Configuration" tabStyle="Lead">
+
+    <style type="text/css">
+    /* Start of 4 Column CSS */
+    #container4 {
+        clear:left;
+        float:left;
+        width:100%;
+        overflow:hidden;
+        background:#b2f0f9; /* column 4 background colour */
+    }
+    #container3 {
+        clear:left;
+        float:left;
+        width:100%;
+        position:relative;
+        right:25%;
+        background:#89ffa2; /* column 3 background colour */
+    }
+    #container2 {
+        clear:left;
+        float:left;
+        width:100%;
+        position:relative;
+        right:25%;
+        background:#ffa7a7; /* column 2 background colour */
+    }
+    #container1 {
+        float:left;
+        width:100%;
+        position:relative;
+        right:25%;
+        background:#fff689; /* column 1 background colour */
+    }
+    #col1 {
+        float:left;
+        width:21%;
+        position:relative;
+        left:77%;
+        overflow:hidden;
+    }
+    #col2 {
+        float:left;
+        width:21%;
+        position:relative;
+        left:81%;
+        overflow:hidden;
+    }
+    #col3 {
+        float:left;
+        width:21%;
+        position:relative;
+        left:85%;
+        overflow:hidden;
+    }
+    #col4 {
+        float:left;
+        width:21%;
+        position:relative;
+        left:89%;
+        overflow:hidden;
+    }
+    /* --> */
+    </style>
+    
+
+    
+    <script type="text/javascript">
+        
+        function showLoading() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("savebtn").style.display = "none";
+        }
+        
+        function showSearching() {
+            document.getElementById("searchbtn").style.display = "none";
+            document.getElementById("searchingBar").style.display = "block";
+        }
+        
+        function doSearch() {
+            searchServer(
+                document.getElementById("searchTerm").value
+            );
+        }
+    </script>
+    
+    <style type="text/css">
+        td.myPanelGridCol {
+            vertical-align:middle;
+        }
+    </style>
+
+    <apex:param id="userId" value="{$User.Id}" assignTo="{!usersId}"/>
+    
+    <apex:pageMessages escape="true" showDetail="false" />
+    
+    <apex:form id="suppressionSettingsForm" rendered="{!hasAccess}">
+        
+        <apex:pageBlock id="SuppressionConfigBlock" title="Data.com Import Suppression Config" >
+
+            <apex:pageBlockButtons location="top">
+
+                <div id="savebtn">
+                    <apex:commandButton action="{!saveConfig}" alt="Save Configuration" id="saveButton" value="Save" onclick="showLoading()"/>
+                </div>
+                <div id="loading" style="display:none; vertical-align:middle;">
+                    <img src="{!$Resource.processing_gear}" />
+                </div>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection collapsible="false" columns="1"  title="Org-Wide Configuration Settings">
+                <apex:pageBlockSectionItem helpText="{!$Label.Account_Import_Disabled_Help}" dataTitle="Disable Account Import" >
+                    <apex:outputText >
+                        {!$Label.Disable_Account_Import_Global}
+                    </apex:outputText>
+                    <apex:inputCheckbox id="acctDisabled" value="{!acctImportDisabled}" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.Contact_Import_Disabled_Help}" dataTitle="Disable Contact Import">
+                    <apex:outputText >
+                        {!$Label.Disable_Contact_Import_Global}
+                    </apex:outputText>
+                    <apex:inputCheckbox id="contactDisabled" value="{!contactImportDisabled}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem helpText="{!$Label.Lead_Import_Disabled_Help}" dataTitle="Disable Lead Import">
+                    <apex:outputText >
+                        {!$Label.Disable_Lead_Import_Global}
+                    </apex:outputText>
+                    <apex:inputCheckbox id="leadDisabled" value="{!leadImportDisabled}"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection collapsible="false" id="profileSection" title="Profile & User Override Settings" columns="1">
+                <table>
+                <tbody>
+                <tr><td width="50%"><apex:pageMessage id="searchTermsError" rendered="{!searchError}" severity="error" strength="2" title="Query Error:">Please enter some search criteria to return search results. If you wish to return all Profiles and Users, use the  <span style="font-size:15px;">*</span>  symbol.</apex:pageMessage></td><td></td></tr>
+                </tbody>
+                </table>
+            </apex:pageBlockSection>
+            
+            <apex:panelGrid border="0" id="inputGrid" columns="3" columnClasses="myPanelGridCol,myPanelGridCol,myPanelGridCol">
+                <apex:panelGroup style="float:left;">
+                    <div class="requiredInput">
+                        <div class="requiredBlock"></div><apex:inputText id="searchTerm" value="{!searchTerm}" label="profileSearchTerm"/>
+                        &nbsp;
+                        <span id="searchbtn">
+                        <apex:commandButton action="{!search}" title="Search" value="Search" onclick="showSearching()"/>
+                        </span>
+                    </div>
+                </apex:panelGroup>
+                <apex:panelGroup style="float:right;">
+                    <div onmouseover="addMouseOver(this)" onfocus="addMouseOver(this)" class="helpButton">    
+                        <img title="" class="helpOrb" alt="Search Assist" src="/s.gif" style="vertical-align:middle;" />
+                        <div style="display:none;" class="mouseOverInfo">
+                            {!$Label.Search_Help_Orb}
+                        </div>
+                    </div>
+                </apex:panelGroup>
+            </apex:panelGrid>
+            
+            <span id="searchingBar" style="display:none; text-align:center;">
+                <apex:image value="{!$Resource.searching_bar}" alt="Searching..." id="searchProgBar"/>
+            </span>
+            
+            <apex:pageBlockTable id="resultsTable" value="{!searchResults}" var="res" rendered="{!hasResults}" columns="6" style="text-align:center; margin-top:-2px; padding-bottom:5px;" cellspacing="1" align="center" cellpadding="1" >
+                <apex:column id="colObj" headerValue="Object Type" value="{!res.sType}" />
+                <apex:column id="colName" headerValue="Name" value="{!res.sName}"/>
+                <apex:column id="colPerm" headerValue="Perm Controller" value="{!res.sController}"/>
+                <apex:column id="colAcct" headerValue="Account Import Disabled" > <apex:inputCheckbox id="acctDisabledChkbx" value="{!res.sAccountImportDisabled}"/> </apex:column>
+                <apex:column id="colCont" headerValue="Contact Import Disabled" > <apex:inputCheckbox id="contDisabledChkbx" value="{!res.sContactImportDisabled}"/> </apex:column>
+                <apex:column id="colLead" headerValue="Lead Import Disabled" > <apex:inputCheckbox id="leadDisabledChkbx" value="{!res.sLeadImportDisabled}"/> </apex:column>
+            </apex:pageBlockTable>
+
+            <p>::Debugging::</p>
+            <apex:outputText value="{!searchResults}"></apex:outputText>
+
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

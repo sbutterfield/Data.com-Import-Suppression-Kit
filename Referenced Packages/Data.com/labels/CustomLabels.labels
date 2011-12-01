@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Jigsaw_Chatter_Account_Fresher</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Account Fresher</shortDescription>
+        <value>has fresh information for this account.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Account_Graveyard</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Account Graveyard</shortDescription>
+        <value>has moved this account to the Graveyard.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Account_More_Info</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Account More Info</shortDescription>
+        <value>has more information for this account.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Contact_Fresher</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Contact Fresher</shortDescription>
+        <value>has fresh information for this contact.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Contact_Graveyard</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Contact Graveyard</shortDescription>
+        <value>has moved this contact to the Graveyard.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Contact_More_Info</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Contact More Info</shortDescription>
+        <value>has more information for this contact.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Enabled_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Enabled Help</shortDescription>
+        <value>Clear the check from the &quot;Data.com Chatter Enabled&quot; checkbox to turn off Data.com Chatter for all Data.com managed objects.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Lead_Fresher</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Lead Fresher</shortDescription>
+        <value>has fresh information for this lead.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Lead_Graveyard</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Lead Graveyard</shortDescription>
+        <value>has moved this lead to the Graveyard.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Lead_More_Info</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Lead More Info</shortDescription>
+        <value>has more information for this lead.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_Error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings Error</shortDescription>
+        <value>Data.com wasn’t able to save and update your selected Chatter settings. Please try to save your settings again.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings Help</shortDescription>
+        <value>You can control how much information Data.com Chatter sends for each managed object.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_Additional</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State Additional</shortDescription>
+        <value>Only additional info</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_Additional_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State Additional Help</shortDescription>
+        <value>sends all information about all record changes for this object except for those records that are graveyarded (inactive).</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_All</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State All</shortDescription>
+        <value>All info</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_All_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State All Help</shortDescription>
+        <value>sends information when any record changes for this object.</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_Graveyard</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State Graveyard</shortDescription>
+        <value>Only graveyarded info</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_Graveyard_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State Graveyard Help</shortDescription>
+        <value>sends information only when a record is marked as inactive (graveyarded).</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_Mute</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State Mute</shortDescription>
+        <value>Mute all info</value>
+    </labels>
+    <labels>
+        <fullName>Jigsaw_Chatter_Settings_State_Mute_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Data.com Chatter Settings State Mute Help</shortDescription>
+        <value>turns off all Chatter for the selected object.</value>
+    </labels>
+</CustomLabels>

@@ -1,0 +1,1 @@
+public without sharing class data_CustomException extends Exception{}
