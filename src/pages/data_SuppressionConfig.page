@@ -1,6 +1,10 @@
-<apex:page controller="data_SuppressionConfigController" title="Data.com Prospecting Suppression Configuration" tabStyle="Lead">
+<apex:page controller="data_SuppressionConfigController" title="Data.com Prospecting Suppression Configuration">
+<apex:stylesheet id="setupSheet" value="https://na12.salesforce.com/sCSS/Theme2/en/setup.css"/>
 
     <style type="text/css">
+    .bPageBlock .pbSubheader {
+        background-color:black;
+    }
     /* Start of 4 Column CSS */
     #container4 {
         clear:left;
@@ -107,6 +111,7 @@
                     <img src="{!$Resource.processing_gear}" />
                 </div>
             </apex:pageBlockButtons>
+
             <apex:pageBlockSection collapsible="false" columns="1"  title="Org-Wide Configuration Settings">
                 <apex:pageBlockSectionItem helpText="{!$Label.Account_Import_Disabled_Help}" dataTitle="Disable Account Import" >
                     <apex:outputText >

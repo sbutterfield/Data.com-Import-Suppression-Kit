@@ -2,4 +2,9 @@
 <ApexPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>23.0</apiVersion>
     <label>data_SuppressionConfig</label>
+    <packageVersions>
+        <majorNumber>2</majorNumber>
+        <minorNumber>12</minorNumber>
+        <namespace>jigsaw_clean</namespace>
+    </packageVersions>
 </ApexPage>
