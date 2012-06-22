@@ -136,7 +136,16 @@
             <apex:pageBlockSection collapsible="false" id="profileSection" title="Profile & User Override Settings" columns="1">
                 <table>
                 <tbody>
-                <tr><td width="50%"><apex:pageMessage id="searchTermsError" rendered="{!searchError}" severity="error" strength="2" title="Query Error:">Please enter some search criteria to return search results. If you wish to return all Profiles and Users, use the  <span style="font-size:15px;">*</span>  symbol.</apex:pageMessage></td><td></td></tr>
+                <tr><td width="50%"><apex:pageMessage id="searchTermsError" rendered="{!searchError}" severity="error" strength="2" title="Query Error:">Please enter some search criteria to return search results. If you wish to return all Profiles and Users, use the  <span style="font-size:15px;">*</span>  symbol.</apex:pageMessage></td>
+                <td/>
+                <div style="float:right;padding-right:100px;">
+                    <h5># of Profiles Overridden: </h5> 0 <br/>
+                    <h5># of Users Overridden: </h5> 0 <br/>
+                    <h5># of Users Account Import Allowed: </h5> 0 <br/>
+                    <h5># of Users Contact Import Allowed: </h5> 0 <br/>
+                    <h5># of Users Lead Import Allowed: </h5> 0 <br/>
+                </div>
+                </tr>
                 </tbody>
                 </table>
             </apex:pageBlockSection>
@@ -158,6 +167,14 @@
                             {!$Label.Search_Help_Orb}
                         </div>
                     </div>
+                </apex:panelGroup>
+                <apex:panelGroup style="float:right;padding-left:10px">
+                    <h5>Sub-set Filters:</h5>&nbsp; <apex:selectList id="filterList" multiselect="false" size="1" title="Sub-set Filters" label="Sub-set Filters">
+                        <apex:selectOption itemValue="all" itemLabel="All"/>
+                        <apex:selectOption itemValue="defaults" itemLabel="Org Defaults"/>
+                        <apex:selectOption itemValue="users" itemLabel="Users Overridden"/>
+                        <apex:selectOption itemValue="profiles" itemLabel="Profiles Overridden"/>
+                    </apex:selectList>
                 </apex:panelGroup>
             </apex:panelGrid>
             

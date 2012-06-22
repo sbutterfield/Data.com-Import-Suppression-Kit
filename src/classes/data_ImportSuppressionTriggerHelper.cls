@@ -15,18 +15,18 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 	public static void doSuppression() {
 		String userId = UserInfo.getUserId();
 		String userProfileId = UserInfo.getProfileId();
-		String objectName = trigger.new.get(0).getSObjectType().getDescribe().getName();
+		String objectName = Trigger.new.get(0).getSObjectType().getDescribe().getName();
 		Boolean isImportDisabled = isImportDisabled(userId, userProfileId, objectName);
 		
 		// If the user/profile/org perms allow import, exit this method.
 		if(!isImportDisabled) { return; }
 		
 		// Instantiate a new list of generics and inherit all of the objects in the triggered instance.
-		list<SObject> newObjects = new list<SObject>();
-		newObjects.addAll(trigger.new);
+		List<SObject> newObjects = new List<SObject>();
+		newObjects.addAll(Trigger.new);
 		
 		// Setup the correct field map
-		map<String, Schema.SObjectField> sobjFieldMap;
+		Map<String, Schema.SObjectField> sobjFieldMap;
 
 		if(newObjects.get(0).getSObjectType() == Account.SObjectType) {
 			sobjFieldMap = Schema.SObjectType.Account.fields.getMap();
@@ -53,7 +53,7 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 				}
 			}
 		}
-		else if(hasJigsawFLS || Test.isRunningTest()) {
+		else if(hasJigsawFLS || (Test.isRunningTest() && data_TestUtil.TEST_MODE == 1)) {
 			for(SObject s : newObjects) {
 				if(s.get('Jigsaw') != null) {
 					s.addError(Label.Data_com_Insufficient_Privileges);
@@ -83,11 +83,22 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 		else if(profileSetting.Id != null) {
 			return (Boolean)profileSetting.get(objectName+'_Import_Disabled__c');
 		}
-		else if(orgSetting != null) {
+		else if(orgSetting.Id != null) {
 			return (Boolean)orgSetting.get(objectName+'_Import_Disabled__c');
 		}
 		// No settings defined, assume no permissions.
-		else return true;
+		// 4/18/2012: Had to change this branch of the logic tree to simply exit gracefully because under circumstances where other orgs have installed this code and are
+		// either not using System.runAs OR they are and the 
+		else {
+			System.debug('+++++#### No settings defined, assume unknown or no permissions. Exiting the method gracefully. ####+++++');
+			System.debug('Debugging userSetting: \n' +userSetting);
+			System.debug('Debugging profileSetting: \n' +profileSetting);
+			System.debug('Debugging orgSetting: \n' +orgSetting);
+			System.debug('Debugging userId param passed to method: \n' +userId);
+			System.debug('Debugging profileId param passed to method: \n' +profileId);
+			System.debug('Debugging objectName passed to method: \n' +objectName);
+			return true;
+		}
 	}
 	
 	// ############################
@@ -101,7 +112,8 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 		hasJigsawFLS = data_SuppressionUtils.getFLS('Jigsaw', 'access', Schema.SObjectType.Account.fields.getMap());
 		hasHygienePackage = data_SuppressionUtils.getFLS('jigsaw_clean__Jigsaw_Id__c', 'access', Schema.SObjectType.Account.fields.getMap());
 		
-		Account a = new Account(Name='ABC Co',Website='www.abc.com',Jigsaw='123456');
+		Account a = new Account(Name='ABC Co',Website='www.abc.com');
+		if(hasJigsawFLS) { a.put('Jigsaw','123456'); }
 		try {
 			insert a;
 			dmlSuccessful = true;
@@ -151,33 +163,45 @@ public without sharing class data_ImportSuppressionTriggerHelper {
         insert u;
         
         Import_Settings__c userSetting = Import_Settings__c.getInstance(u.Id);
-        
-        if(userSetting.Id == null) { 
-	        userSetting = new Import_Settings__c(SetupOwnerId=u.Id, Account_Import_Disabled__c=true, Contact_Import_Disabled__c=false, Lead_Import_Disabled__c=true);
-	        insert userSetting;
+        if(userSetting.Id == null) {
+        	userSetting = new Import_Settings__c(SetupOwnerId=u.Id, Account_Import_Disabled__c=true, Contact_Import_Disabled__c=false, Lead_Import_Disabled__c=true);
         }
+        else {
+        	userSetting.Account_Import_Disabled__c = true;
+        	userSetting.Contact_Import_Disabled__c = false;
+        	userSetting.Lead_Import_Disabled__c = true;
+        }
+        upsert userSetting;
         
         Import_Settings__c profileSetting = Import_Settings__c.getInstance(p.Id);
-        
         if(profileSetting.Id == null) { 
-	        profileSetting = new Import_Settings__c(SetupOwnerId=p.Id, Account_Import_Disabled__c=true, Contact_Import_Disabled__c=true, Lead_Import_Disabled__c=false);
-	        insert profileSetting;
+        	profileSetting = new Import_Settings__c(SetupOwnerId=p.Id, Account_Import_Disabled__c=true, Contact_Import_Disabled__c=true, Lead_Import_Disabled__c=false);
         }
+        else {
+        	profileSetting.Account_Import_Disabled__c=true; 
+			profileSetting.Contact_Import_Disabled__c=true;
+			profileSetting.Lead_Import_Disabled__c=false;
+        }
+        upsert profileSetting;
 		
 		Import_Settings__c orgSetting = Import_Settings__c.getOrgDefaults();
-		
-		if(orgSetting == null) {
+		if(orgSetting.Id == null) {
 			orgSetting = new Import_Settings__c(SetupOwnerId=UserInfo.getOrganizationId(), Account_Import_Disabled__c=false, Contact_Import_Disabled__c=true, Lead_Import_Disabled__c=false);
-	        insert orgSetting;
 		}
-		
+		else {
+			orgSetting.Account_Import_Disabled__c=false; 
+			orgSetting.Contact_Import_Disabled__c=true;
+			orgSetting.Lead_Import_Disabled__c=false;
+		}
+		upsert orgSetting;
+	
         System.runAs(u) { 
         	system.assertEquals(userSetting.Account_Import_Disabled__c, data_ImportSuppressionTriggerHelper.isImportDisabled(u.Id, p.Id, 'Account'));
         	system.assertEquals(userSetting.Contact_Import_Disabled__c, data_ImportSuppressionTriggerHelper.isImportDisabled(u.Id, p.Id, 'Contact'));
         	system.assertEquals(userSetting.Lead_Import_Disabled__c, data_ImportSuppressionTriggerHelper.isImportDisabled(u.Id, p.Id, 'Lead'));
         }
         
-        delete userSetting;
+        Database.DeleteResult dr = Database.delete(userSetting);
         
         System.runAs(u) {
         	system.assertEquals(profileSetting.Account_Import_Disabled__c, data_ImportSuppressionTriggerHelper.isImportDisabled(u.Id, p.Id, 'Account'));

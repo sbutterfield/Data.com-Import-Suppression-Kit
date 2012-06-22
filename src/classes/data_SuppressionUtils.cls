@@ -63,7 +63,7 @@ public class data_SuppressionUtils {
      */
     public static Boolean getProfilePerms(String perm, String profileId) {
         String queryString = 'SELECT p.Id, p.Name, p.' + perm + ' FROM Profile p WHERE p.Id = \'' + profileId + '\' LIMIT 1';
-        list<Profile> resultset = new list<Profile>();
+        List<Profile> resultset = new List<Profile>();
         
         try {
             resultset = Database.query(queryString);
@@ -78,7 +78,7 @@ public class data_SuppressionUtils {
         
         Profile p = resultset.get(0);
         Boolean permVal = (Boolean) p.get(perm);
-        System.debug('1.9314616130e+0 -------------------> The profile perm result is: ' + permVal);
+        System.debug('1.9314616130e+0 -------------------> Is the current accessor allowed to perform the requested action? : ' + permVal);
         return permVal;
     }
     

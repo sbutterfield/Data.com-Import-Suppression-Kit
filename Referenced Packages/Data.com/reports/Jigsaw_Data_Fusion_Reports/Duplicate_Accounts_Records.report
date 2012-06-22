@@ -17,6 +17,7 @@
         <criteriaItems>
             <column>Account.Duplicate_Id__c</column>
             <operator>notEqual</operator>
+            <value></value>
         </criteriaItems>
         <language>en_US</language>
     </filter>

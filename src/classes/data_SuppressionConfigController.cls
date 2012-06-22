@@ -6,7 +6,7 @@ public with sharing class data_SuppressionConfigController {
     public Boolean acctImportDisabled { get; set; }
 
     // search dependent class accessors
-    public list<data_ImportSetting> searchResults { get; set; }
+    public List<data_ImportSetting> searchResults { get; set; }
     public Boolean hasResults { get; set; }
     public String searchTerm { get; set; }
     public Boolean searchError { get; set; }
@@ -15,9 +15,47 @@ public with sharing class data_SuppressionConfigController {
     // usersId is used to query for permissions and determine access
     private String usersId { get; set; }
     private Boolean hasAccess = false;
+    // static initializer from constructor instantiation
     public Boolean getHasAccess() {
         return this.hasAccess;
     }
+
+    public data_SuppressionConfigController() {
+        initPage();
+        searchError = false;
+    }
+    
+    /**
+     * Initialize the page state. Checks profile permissions, throws error and does not allow page to render if user does not have perms.
+     */
+    private void initPage() {
+        if(!data_SuppressionUtils.getProfilePerms('PermissionsManageUsers', UserInfo.getProfileId())) {
+            ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.FATAL, (String)System.Label.Data_com_Insufficient_Privileges);
+            ApexPages.addMessage(msg);
+            hasAccess = false;
+            return;
+        }
+        
+        hasAccess = true;
+        
+        // Set initial Global Configuration Settings for the page.
+        Import_Settings__c importSettings = Import_Settings__c.getOrgDefaults();
+        if(importSettings != null) {
+            this.acctImportDisabled = importSettings.Account_Import_Disabled__c;
+            this.contactImportDisabled = importSettings.Contact_Import_Disabled__c;
+            this.leadImportDisabled = importSettings.Lead_Import_Disabled__c;
+        }
+        else {
+            // If the org defaults are not set, render false for inputs. DML will register this on [Save] action.
+            this.acctImportDisabled = false;
+            this.contactImportDisabled = false;
+            this.leadImportDisabled = false;
+        }
+    }
+    
+    // ############################
+    /* SEARCH LOGIC */
+    // ############################
 
     public PageReference search() {
         initPage();
@@ -56,13 +94,13 @@ public with sharing class data_SuppressionConfigController {
                 profiles = doQuery(queryString);
             }
             
-            list<data_ImportSetting> settings = new list<data_ImportSetting>();
+            List<data_ImportSetting> settings = new List<data_ImportSetting>();
             if(users != null) {
                 for(User u : users) {
                     // Instantiate new method objects and aliases
-                    transient Import_Settings__c userSettings;
-                    transient Import_Settings__c profileSettings;
-                    transient data_ImportSetting thisSetting = new data_ImportSetting();
+                    Import_Settings__c userSettings;
+                    Import_Settings__c profileSettings;
+                    data_ImportSetting thisSetting = new data_ImportSetting();
                     
                     try {
                         // Return current settings for the user, profile, and Org. If none exist a new instance is automatically created with a null Id for upsert.
@@ -134,25 +172,16 @@ public with sharing class data_SuppressionConfigController {
         return p;
     }
     
-    private SObject[] doQuery(String queryString) {
-        SObject[] result;
-        try {
-            result = Database.query(queryString);
-        }
-        catch(QueryException q) {
-            system.debug(LoggingLevel.INFO,'1.1309009280e+0 ----------------> Query exception encountered: ' +q +'\n Original query string: ' +queryString);
-            ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, '1.1309009280e+0 ----------------> Query exception encountered: ' +q +'\n Original query string: ' +queryString);
-            ApexPages.addMessage(msg);
-        }
-        return result;
-    }
+    // ############################
+    /* SAVE LOGIC */
+    // ############################
     
     public PageReference saveConfig() {
         
         Import_Settings__c orgSettings = Import_Settings__c.getOrgDefaults();
         Boolean newSettings = false;
         
-        if(orgSettings == null) {
+        if(orgSettings.Id == null) {
             // If there are no org settings, create some.
             orgSettings = new Import_Settings__c();
             // We need to know if we are creating a new instance of the settings to re-draw the view correctly if a searchResult is already part of the viewstate.
@@ -167,14 +196,16 @@ public with sharing class data_SuppressionConfigController {
             globalChanged = true;
         }
         
-        orgSettings.Account_Import_Disabled__c = acctImportDisabled;
-        orgSettings.Contact_Import_Disabled__c = contactImportDisabled;
-        orgSettings.Lead_Import_Disabled__c = leadImportDisabled;
-        // Update-Insert the org-wide settings
-        upsert orgSettings;
+        if(globalChanged) {
+	        orgSettings.Account_Import_Disabled__c = acctImportDisabled;
+	        orgSettings.Contact_Import_Disabled__c = contactImportDisabled;
+	        orgSettings.Lead_Import_Disabled__c = leadImportDisabled;
+	        // Update-Insert the org-wide settings
+	        upsert orgSettings;
+        }
         
         if(searchResults != null && searchResults.size() > 0) {
-            list<Import_Settings__c> settingsToDML = new list<Import_Settings__c>();
+            List<Import_Settings__c> settingsToDML = new List<Import_Settings__c>();
             // If there are search results from the page state, deserialize them and make any updates-inserts that are required
             for(data_ImportSetting s : searchResults) {
                 // As long as these are not new org-wide settings, or the existing settings are not changing in this page state, evaluate the following:
@@ -211,38 +242,23 @@ public with sharing class data_SuppressionConfigController {
         PageReference p = Page.data_SuppressionConfig;        
         return p;
     }
-
+    
     /**
-     * Initialize the page state. Checks profile permissions, throws error and does not allow page to render if user does not have perms.
+     * Helper method for all queries from this page.
+     * @param queryString = the string representation of a SOQL query
+     * @return SObject[] = a collection of SObjects from the query result
      */
-    private void initPage() {
-        if(!data_SuppressionUtils.getProfilePerms('PermissionsManageUsers', UserInfo.getProfileId())) {
-            ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.FATAL, (String)System.Label.Data_com_Insufficient_Privileges);
+    private SObject[] doQuery(String queryString) {
+        SObject[] result;
+        try {
+            result = Database.query(queryString);
+        }
+        catch(QueryException q) {
+            system.debug(LoggingLevel.INFO,'1.1309009280e+0 ----------------> Query exception encountered: ' +q +'\n Original query string: ' +queryString);
+            ApexPages.Message msg = new ApexPages.Message(ApexPages.Severity.ERROR, '1.1309009280e+0 ----------------> Query exception encountered: ' +q +'\n Original query string: ' +queryString);
             ApexPages.addMessage(msg);
-            hasAccess = false;
-            return;
         }
-        
-        hasAccess = true;
-        
-        // Set initial Global Configuration Settings for the page.
-        Import_Settings__c importSettings = Import_Settings__c.getOrgDefaults();
-        if(importSettings != null) {
-            this.acctImportDisabled = importSettings.Account_Import_Disabled__c;
-            this.contactImportDisabled = importSettings.Contact_Import_Disabled__c;
-            this.leadImportDisabled = importSettings.Lead_Import_Disabled__c;
-        }
-        else {
-            // If the org defaults are not set, render false for inputs. DML will register this on [Save] action.
-            this.acctImportDisabled = false;
-            this.contactImportDisabled = false;
-            this.leadImportDisabled = false;
-        }
-    }
-
-    public data_SuppressionConfigController() {
-        initPage();
-        searchError = false;
+        return result;
     }
     
     // ############################
@@ -257,7 +273,7 @@ public with sharing class data_SuppressionConfigController {
          system.assert(access);
          
          Import_Settings__c orgSetting = Import_Settings__c.getOrgDefaults();
-         if(orgSetting != null) {
+         if(orgSetting.Id != null) {
             // Delete the org settings so that we can test the accessor page state and automatically creating a new org default on first save.
             delete orgSetting;
          }
@@ -308,6 +324,7 @@ public with sharing class data_SuppressionConfigController {
          c.saveConfig();
          
         system.assert(c.hasResults);
+        system.debug(LoggingLevel.INFO,'Import Settings prior to testing: ' +c);
         for(data_ImportSetting s : c.searchResults) {
             system.assert(s.sAccountImportDisabled);
             system.assert(s.sContactImportDisabled);

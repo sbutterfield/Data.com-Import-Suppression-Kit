@@ -1,12 +1,11 @@
-#Thu Feb 02 16:20:11 PST 2012
 eclipse.preferences.version=1
-endpointApiVersion=23.0
+endpointApiVersion=24.0
 endpointEnvironment=Production/Developer Edition
 endpointServer=www.salesforce.com
 httpsProtocol=true
-ideVersion=23.0
+ideVersion=24.0
 keependpoint=false
-metadataFormatVersion=23.0
+metadataFormatVersion=24.0
 namespacePrefix=dcomSuppression
 packageName=unpackaged
 readTimeout=30
