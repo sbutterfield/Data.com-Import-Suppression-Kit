@@ -9,8 +9,9 @@
 
 public without sharing class data_ImportSuppressionTriggerHelper {
 
-	private static Boolean hasHygienePackage;
-	private static Boolean hasJigsawFLS;
+	private static Boolean hasHygienePackage = false;
+	private static Boolean hasJigsawFLS = false;
+	private static Map<String, Schema.SObjectField> sobjFieldMap;
 
 	public static void doSuppression() {
 		String userId = UserInfo.getUserId();
@@ -26,7 +27,6 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 		newObjects.addAll(Trigger.new);
 		
 		// Setup the correct field map
-		Map<String, Schema.SObjectField> sobjFieldMap;
 
 		if(newObjects.get(0).getSObjectType() == Account.SObjectType) {
 			sobjFieldMap = Schema.SObjectType.Account.fields.getMap();
@@ -40,8 +40,13 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 		// Else not a supported object, exit this method.
 		else return;
 		
-		hasJigsawFLS = data_SuppressionUtils.getFLS('Jigsaw', 'access', sobjFieldMap);
-		hasHygienePackage = data_SuppressionUtils.getFLS('jigsaw_clean__Jigsaw_Id__c', 'access', sobjFieldMap);
+		try {
+			hasJigsawFLS = data_SuppressionUtils.getFLS('Jigsaw', 'access', sobjFieldMap);
+			hasHygienePackage = data_SuppressionUtils.getFLS('jigsaw_clean__Jigsaw_Id__c', 'access', sobjFieldMap);
+		}
+		catch(Exception e) {
+			System.debug(LoggingLevel.ERROR,'Error retrieving FLS: ' +e.getStackTraceString());
+		}
 		
 		// If there's not access to either field that we could check, just exit the method.
 		if(!hasJigsawFLS && !hasHygienePackage) { return; }
@@ -109,11 +114,12 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 		
 		Boolean dmlSuccessful = false;
 		
-		hasJigsawFLS = data_SuppressionUtils.getFLS('Jigsaw', 'access', Schema.SObjectType.Account.fields.getMap());
-		hasHygienePackage = data_SuppressionUtils.getFLS('jigsaw_clean__Jigsaw_Id__c', 'access', Schema.SObjectType.Account.fields.getMap());
-		
+		Map<String, Schema.SObjectField> acctFieldMap = Schema.SObjectType.Account.fields.getMap();
+		Map<String, Schema.SObjectField> contactFieldMap = Schema.SObjectType.Contact.fields.getMap();
+		Map<String, Schema.SObjectField> leadFieldMap = Schema.SObjectType.Lead.fields.getMap();
+				
 		Account a = new Account(Name='ABC Co',Website='www.abc.com');
-		if(hasJigsawFLS) { a.put('Jigsaw','123456'); }
+		if(data_SuppressionUtils.getFLS('Jigsaw', 'access', acctFieldMap)) { a.put('Jigsaw','123456'); }
 		try {
 			insert a;
 			dmlSuccessful = true;
@@ -138,7 +144,7 @@ public without sharing class data_ImportSuppressionTriggerHelper {
 		/*system.assertEquals(false, dmlSuccessful);*/
 		
 		Lead l = new Lead(FirstName='first',LastName='last',Email='contact@company.com');
-		if(hasHygienePackage) {
+		if(data_SuppressionUtils.getFLS('jigsaw_clean__Jigsaw_Id__c', 'access', leadFieldMap)) {
 			l.put('jigsaw_clean__Jigsaw_Id__c','123456');
 		}
 		try {

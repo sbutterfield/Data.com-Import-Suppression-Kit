@@ -136,7 +136,8 @@
             <apex:pageBlockSection collapsible="false" id="profileSection" title="Profile & User Override Settings" columns="1">
                 <table>
                 <tbody>
-                <tr><td width="50%"><apex:pageMessage id="searchTermsError" rendered="{!searchError}" severity="error" strength="2" title="Query Error:">Please enter some search criteria to return search results. If you wish to return all Profiles and Users, use the  <span style="font-size:15px;">*</span>  symbol.</apex:pageMessage></td>
+                <tr><apex:pageMessages id="msgHeader" showDetail="true"/></tr>
+                <tr><td width="50%"><apex:pageMessage id="searchTermsError" rendered="{!searchError}" severity="error" strength="2" title="Query Error:">Please enter some search criteria to return search results!</apex:pageMessage></td>
                 <td/>
                 <div style="float:right;padding-right:100px;">
                     <h5># of Profiles Overridden: </h5> 0 <br/>

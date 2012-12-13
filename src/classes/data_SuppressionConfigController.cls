@@ -1,15 +1,25 @@
 public with sharing class data_SuppressionConfigController {
-
-    // global import accessors used to reflect current custom settings state
+    
+    // import accessors used to reflect current custom settings state
     public Boolean leadImportDisabled { get; set; }
     public Boolean contactImportDisabled { get; set; }
     public Boolean acctImportDisabled { get; set; }
+    
+    // calculation properties for page display, should only set these once on initialization
+    public Integer profilesOverridden { public get; private set; }
+    public Integer usersOverridden { public get; private set; }
+    public Integer usersAccountImportAllowed { public get; private set; }
+    public Integer usersContactImportAllowed { public get; private set; }
+    public Integer usersLeadImportAllowed { public get; private set; }
 
-    // search dependent class accessors
+    // search dependent instance members and accessors
     public List<data_ImportSetting> searchResults { get; set; }
     public Boolean hasResults { get; set; }
     public String searchTerm { get; set; }
     public Boolean searchError { get; set; }
+    
+    // stores page messages received during processing and page load
+    private transient ApexPages.Message[] messages;
 
     // hasAccess view controller param accessors
     // usersId is used to query for permissions and determine access
@@ -243,6 +253,10 @@ public with sharing class data_SuppressionConfigController {
         return p;
     }
     
+    // ############################
+    /* HELPER UTILITIES */
+    // ############################
+    
     /**
      * Helper method for all queries from this page.
      * @param queryString = the string representation of a SOQL query
@@ -259,6 +273,24 @@ public with sharing class data_SuppressionConfigController {
             ApexPages.addMessage(msg);
         }
         return result;
+    }
+    
+    private void calculateAssignments() {
+    	User[] users;
+        Profile[] profiles;
+    	String queryString = '';
+    	
+		queryString += 'SELECT Id,Name,ProfileId FROM User u';
+		users = this.doQuery(queryString);
+		queryString = 'SELECT Id,Name FROM Profile p';
+		profiles = this.doQuery(queryString);
+		
+		if(users != null && profiles != null) {
+			
+		}
+		else {
+			
+		}
     }
     
     // ############################
